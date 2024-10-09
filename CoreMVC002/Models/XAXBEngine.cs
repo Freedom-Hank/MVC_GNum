@@ -13,8 +13,8 @@
         public XAXBEngine()
         {
             Secret = GenerateRandomSecret();
-            Guess = null;
-            Result = null;
+            Guess = string.Empty; ;
+            Result = string.Empty; ;
             GuessCount = 0;
             GuessHistory = new List<string>();
             GameOver = false;
