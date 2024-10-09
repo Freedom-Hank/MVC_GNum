@@ -1,11 +1,12 @@
-﻿@model XAXBEngine
+﻿@model CoreMVC002.Models.XAXBEngine
 
 <h2>1A2B猜數字遊戲</h2>
+
 @if (Model.GameOver)
 {
 <p>@ViewBag.Message</p>
 
-@using (Html.BeginForm("ResetGame", "Game", FormMethod.Post))
+    using (Html.BeginForm("ResetGame", "Game", FormMethod.Post))
     {
 <label for="restart">請輸入 T 或 F：</label>
 <input type="text" id="restart" name="choice" maxlength="1" required />
@@ -14,15 +15,15 @@
 }
 else
 {
-    @using (Html.BeginForm("Guess", "Game", FormMethod.Post))
+    using (Html.BeginForm("Guess", "Game", FormMethod.Post))
     {
-    <label for="guess">請輸入你的猜測：</label>
-    <input type="text" id="guess" name="Guess" value="@Model.Guess" />
-    <input type="submit" value="猜！" />
+<label for="guess">請輸入你的猜測：</label>
+<input type="text" id="guess" name="guess" value="" maxlength="4" required />
+<input type="submit" value="猜！" />
     }
 
-    @if (!string.IsNullOrEmpty(Model.Result))
+if (!string.IsNullOrEmpty(Model.Result))
     {
-    <p>猜測結果：@Model.Result</p>
+<p>猜測結果：@Model.Result</p>
     }
 }
