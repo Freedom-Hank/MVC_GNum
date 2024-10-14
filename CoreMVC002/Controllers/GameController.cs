@@ -39,24 +39,43 @@ namespace CoreMVC002.Controllers
         // ------ 遊戲相關之邏輯 ------
         private string GenerateSecretNumber()
         {
-            // 生成一個隨機的4位數字作為秘密數字
-            // 你可以根據需要自定義生成規則
-            return "1234";
+            // 創建一個隨機數生成器
+            Random random = new Random();
+            // 使用 HashSet 來確保生成的數字不重複
+            HashSet<int> digits = new HashSet<int>();
+
+            // 生成 4 個不重複的隨機數字
+            while (digits.Count < 4)
+            {
+                int digit = random.Next(0, 10); // 在 0 到 9 之間生成一個隨機數字
+                digits.Add(digit); // 將生成的數字添加到 HashSet 中，如果重複則不會添加
+            }
+
+            // 將 HashSet 中的數字轉換為字符串並返回
+            return string.Join("", digits);
         }
 
         private string GetGuessResult(string guess)
         {
-            // 檢查猜測結果，並返回結果字符串
             string secretNumber = TempData["secretNumber"] as string;
-            // 利用Keep(...) 方法, or 再次回存！
-            // TempData["SecretNumber"] = secretNumber;
             TempData.Keep("SecretNumber");
 
-            // 你可以根據遊戲規則自定義檢查邏輯
-            if (secretNumber.Equals(guess))
-                return "4A0B";
-            else
-                return "?A?B";
+            int aCount = 0; // 數字和位置都正確的數量
+            int bCount = 0; // 數字正確但位置錯誤的數量
+
+            for (int i = 0; i < secretNumber.Length; i++)
+            {
+                if (guess[i] == secretNumber[i])
+                {
+                    aCount++;
+                }
+                else if (secretNumber.Contains(guess[i]))
+                {
+                    bCount++;
+                }
+            }
+
+            return $"{aCount}A{bCount}B";
         }
     }
 }
