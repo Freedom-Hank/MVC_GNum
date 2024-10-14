@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CoreMVC002.Models;
 using Microsoft.AspNetCore.Mvc;
 
+// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CoreMVC002.Controllers
 {
@@ -13,87 +14,50 @@ namespace CoreMVC002.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            // 創建猜測模型: 初始化猜測數字+比對結果+比對邏輯
+            // 初始化秘密數字
+            string secretNumber = GenerateSecretNumber();
+
+            // 傳遞到 View 內部後再回到 Controller
+            TempData["secretNumber"] = secretNumber;
+
+            // 創建猜測模型: 猜測數字+比對結果+比對邏輯
             var model = new XAXBEngine();
-
-            // 將遊戲引擎保存到 TempData 中以便後續使用
-            TempData["GameEngine"] = model;
-
-            // 使用 TempData.Keep() 來確保它不會在下一個請求後消失
-            TempData.Keep("GameEngine");
 
             // 使用強型別
             return View(model);
         }
 
         [HttpPost]
-        public ActionResult Guess(string guess)
+        public ActionResult Guess(XAXBEngine model)
         {
-            // 從 TempData 中取出遊戲引擎
-            var model = TempData.Peek("GameEngine") as XAXBEngine;
-            if (model == null)
-            {
-                // 如果 TempData 中找不到遊戲引擎，重新創建一個
-                model = new XAXBEngine();
-            }
-
-            // 檢查猜測輸入是否合法
-            if (string.IsNullOrEmpty(guess) || guess.Length != 4)
-            {
-                ModelState.AddModelError("", "請輸入四位數字作為猜測。");
-                TempData["GameEngine"] = model;
-                TempData.Keep("GameEngine");
-                return View("Index", model);
-            }
-
-            // 執行猜測邏輯
-            model.MakeGuess(guess);
-
-            // 判斷遊戲是否結束並顯示提示信息
-            if (model.GameOver)
-            {
-                ViewBag.Message = "恭喜你猜對了！是否要重新開始遊戲？請選擇 T (重新開始) 或 F (結束遊戲)。";
-                TempData["GameEngine"] = model;
-                TempData.Keep("GameEngine");
-                return View("GameOver", model);
-            }
-
-            // 保持 TempData 的狀態以便後續請求使用
-            TempData["GameEngine"] = model;
-            TempData.Keep("GameEngine");
-
-            // 返回更新後的模型
+            // 檢查猜測結果
+            model.Result = GetGuessResult(model.Guess);
+            //
             return View("Index", model);
         }
 
-        [HttpPost]
-        public ActionResult ResetGame(string choice)
+        // ------ 遊戲相關之邏輯 ------
+        private string GenerateSecretNumber()
         {
-            // 從 TempData 中取出遊戲引擎
-            var model = TempData.Peek("GameEngine") as XAXBEngine;
-            if (model == null)
-            {
-                model = new XAXBEngine();
-            }
-
-            // 根據玩家的選擇重置遊戲或結束遊戲
-            bool restart = choice.Equals("T", StringComparison.OrdinalIgnoreCase);
-            model.ResetGame(restart);
-
-            TempData["GameEngine"] = model;
-            TempData.Keep("GameEngine");
-
-            if (restart)
-            {
-                return View("Index", model); // 重新開始遊戲
-            }
-            else
-            {
-                ViewBag.Message = "遊戲已結束，感謝您的參與！";
-                return View("GameOver"); // 結束遊戲，顯示簡單的結束訊息
-            }
+            // 生成一個隨機的4位數字作為秘密數字
+            // 你可以根據需要自定義生成規則
+            return "1234";
         }
 
+        private string GetGuessResult(string guess)
+        {
+            // 檢查猜測結果，並返回結果字符串
+            string secretNumber = TempData["secretNumber"] as string;
+            // 利用Keep(...) 方法, or 再次回存！
+            // TempData["SecretNumber"] = secretNumber;
+            TempData.Keep("SecretNumber");
+
+            // 你可以根據遊戲規則自定義檢查邏輯
+            if (secretNumber.Equals(guess))
+                return "4A0B";
+            else
+                return "?A?B";
+        }
     }
 }
 
