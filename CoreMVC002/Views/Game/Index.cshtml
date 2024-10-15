@@ -14,3 +14,9 @@
     <p>猜測結果：@Model.Result</p>
     <p>你已經猜了 @Model.GuessCount 次</p>
     }
+
+    @if (!string.IsNullOrEmpty(Model.GuessHistoryString))
+    {
+    <h3>猜測記錄：</h3>
+    <pre>@Model.GuessHistoryString</pre>
+    }

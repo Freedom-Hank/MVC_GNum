@@ -26,6 +26,13 @@
                     TempData["GuessCount"] = 0;
                 }
 
+                 // 初始化猜測記錄（如果不存在）
+                if (TempData["GuessHistory"] == null)
+                {
+                    TempData["GuessHistory"] = new List<string>();
+                }
+
+
                 // 創建猜測模型: 猜測數字+比對結果+比對邏輯
                 var model = new XAXBEngine();
 
@@ -51,11 +58,22 @@
 
                 // 檢查猜測結果
                 model.Result = GetGuessResult(model.Guess);
+
+                    
+                // 記錄每次猜測的數字和結果
+                string guessHistory = TempData["GuessHistory"] as string ?? ""; // 如果為 null，則初始化為空字符串
+                string guessRecord = $"猜測 {model.Guess}: {model.Result}";
+                guessHistory += guessRecord + "\n";
+                TempData["GuessHistory"] = guessHistory; // 更新 TempData
+
+                 // 將猜測記錄加入模型中
+                model.GuessHistoryString = guessHistory;  
                 
+
                 // 保留 TempData 中的秘密數字和猜測次數，避免它們在這次請求後被清除
                 TempData.Keep("secretNumber");
                 TempData.Keep("GuessCount");
-
+                TempData.Keep("GuessHistory");
                 return View("Index", model);
             }
 
