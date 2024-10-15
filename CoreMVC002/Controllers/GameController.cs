@@ -34,7 +34,7 @@
 
 
                 // 創建猜測模型: 猜測數字+比對結果+比對邏輯
-                var model = new XAXBEngine();
+                var model = new XAXBEngine(secretNumber);
 
                 // 使用強型別
                 return View(model);
@@ -45,6 +45,8 @@
             {
                 // 取得秘密數字
                 string secretNumber = TempData["secretNumber"] as string;
+
+                model.Secret = secretNumber;
 
                 // 讀取猜測次數
                 int guessCount = TempData["GuessCount"] != null ? (int)TempData["GuessCount"] : 0;
@@ -57,7 +59,10 @@
                 model.GuessCount = guessCount;
 
                 // 檢查猜測結果
-                model.Result = GetGuessResult(model.Guess);
+                //model.Result = GetGuessResult(model.Guess);
+                int aCount = model.numOfA(model.Guess);
+                int bCount = model.numOfB(model.Guess);
+                model.Result = $"{aCount}A{bCount}B";
 
                     
                 // 記錄每次猜測的數字和結果
@@ -70,6 +75,11 @@
                 model.GuessHistoryString = guessHistory;  
                 
 
+                
+                // 判斷是否猜對
+                 model.IsCorrect = model.IsGameOver(model.Guess);
+
+
                 // 保留 TempData 中的秘密數字和猜測次數，避免它們在這次請求後被清除
                 TempData.Keep("secretNumber");
                 TempData.Keep("GuessCount");
@@ -78,6 +88,20 @@
             }
 
             // ------ 遊戲相關之邏輯 ------
+
+            [HttpPost]
+            public ActionResult Restart()
+            {
+                // 清空 TempData 的數據，重新初始化遊戲
+                TempData.Remove("secretNumber");
+                TempData.Remove("GuessCount");
+                TempData.Remove("GuessHistory");
+
+                // 重定向回 Index，重新開始遊戲
+                return RedirectToAction("Index");
+            }
+
+
             private string GenerateSecretNumber()
             {
                 // 創建一個隨機數生成器
@@ -94,29 +118,6 @@
 
                 // 將 HashSet 中的數字轉換為字符串並返回
                 return string.Join("", digits);
-            }
-
-            private string GetGuessResult(string guess)
-            {
-                string secretNumber = TempData["secretNumber"] as string;
-                TempData.Keep("secretNumber");
-
-                int aCount = 0; // 數字和位置都正確的數量
-                int bCount = 0; // 數字正確但位置錯誤的數量
-
-                for (int i = 0; i < secretNumber.Length; i++)
-                {
-                    if (guess[i] == secretNumber[i])
-                    {
-                        aCount++;
-                    }
-                    else if (secretNumber.Contains(guess[i]))
-                    {
-                        bCount++;
-                    }
-                }
-
-                return $"{aCount}A{bCount}B";
             }
         }
     }
